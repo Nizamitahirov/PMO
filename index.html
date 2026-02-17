@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PMO & Project Management Exam</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap');
+
+    :root {
+        /* Birbank Style Colors */
+        --primary-gradient: linear-gradient(135deg, #ed1c24 0%, #f15a24 100%);
+        --primary-solid: #ed1c24;
+        --secondary-solid: #f15a24;
+        --bg-color: #f9fafb;
+        --card-bg: #ffffff;
+        --text-main: #111827;
+        --text-muted: #6b7280;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body {
+        background: var(--bg-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        color: var(--text-main);
+        overflow: hidden; /* Prevent scrolling behind the app */
+    }
+
+    /* --- Animation Emojis --- */
+    .emoji-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        font-size: 8rem;
+        z-index: 100;
+        pointer-events: none;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .emoji-popup.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    .emoji-popup.hide { transform: translate(-50%, -50%) scale(1.5); opacity: 0; transition: all 0.3s ease; }
+
+    /* --- Main Container --- */
+    .app-container {
+        width: 100%;
+        max-width: 850px;
+        background: var(--card-bg);
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(237, 28, 36, 0.1);
+        overflow: hidden;
+        position: relative;
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(237, 28, 36, 0.1);
+    }
+
+    .screen {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 40px;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform: scale(0.98);
+        transition: all 0.4s ease;
+        overflow-y: auto;
+    }
+
+    .screen.active {
+        opacity: 1;
+        pointer-events: all;
+        position: relative;
+        transform: scale(1);
+    }
+
+    /* --- Start Screen --- */
+    .start-content {
+        text-align: center;
+        margin: auto;
+        max-width: 650px;
+    }
+
+    .brand-logo {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .badge {
+        background: #fee2e2;
+        color: var(--primary-solid);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+        line-height: 1.2;
+        color: var(--text-main);
+        margin-bottom: 15px;
+        font-weight: 800;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 16px 40px;
+        font-size: 1.1rem;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 10px 25px rgba(237, 28, 36, 0.25);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-primary:active { transform: scale(0.96); }
+
+    /* --- Quiz Header --- */
+    .quiz-header {
+        padding: 20px 30px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255,255,255,0.95);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(5px);
+    }
+
+    .progress-track {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background: #f3f4f6;
+        width: 100%;
+    }
+    .progress-fill {
+        height: 100%;
+        background: var(--primary-gradient);
+        width: 0%;
+        transition: width 0.5s ease;
+    }
+
+    /* --- Question Area --- */
+    .quiz-body {
+        padding: 30px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+        padding-bottom: 100px; /* Space for explanation */
+    }
+
+    .difficulty-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+    }
+    .diff-easy { background: #d1fae5; color: #065f46; }
+    .diff-medium { background: #ffedd5; color: #9a3412; }
+    .diff-hard { background: #fee2e2; color: #991b1b; }
+
+    .question-text {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 25px;
+        line-height: 1.5;
+        color: #1f2937;
+    }
+
+    .options-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .option-card {
+        background: #fff;
+        border: 2px solid #e5e7eb;
+        padding: 18px 20px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #374151;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .option-card:hover:not(.disabled) {
+        border-color: var(--secondary-solid);
+        background: #fff7ed;
+    }
+
+    .option-card.correct {
+        border-color: var(--success);
+        background: #ecfdf5;
+        color: #064e3b;
+    }
+
+    .option-card.wrong {
+        border-color: var(--danger);
+        background: #fef2f2;
+        color: #7f1d1d;
+    }
+
+    .option-card.disabled { pointer-events: none; }
+
+    /* --- Explanation Box --- */
+    .feedback-box {
+        margin-top: 25px;
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 25px;
+        border-left: 5px solid var(--primary-solid);
+        display: none;
+        animation: slideUp 0.3s ease;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    }
+
+    .feedback-source {
+        margin-top: 10px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* --- Result Screen --- */
+    .result-circle {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary-solid) 0%, #e5e7eb 0%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 30px;
+        position: relative;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .result-circle::before {
+        content: "";
+        width: 150px;
+        height: 150px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+    }
+
+    .result-score { position: relative; font-size: 3rem; font-weight: 800; color: var(--text-main); }
+
+</style>
+</head>
+<body>
+
+<div class="emoji-popup" id="emoji-feedback">😍</div>
+
+<div class="app-container">
+    
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <div class="start-content">
+            <div class="brand-logo"><i class="fa-solid fa-layer-group"></i> PMO Exam</div>
+            <span class="badge">Based on Course Materials</span>
+            <h1>Project Management <br> Comprehensive Quiz</h1>
+            <p style="margin: 20px 0 30px; color: var(--text-muted); font-size: 1.1rem;">
+                100 Questions covering Concepts, Life Cycle, Org Structures, Scope, Schedule, Proposals, and more.
+            </p>
+            
+            <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px;">
+                <div style="background: #f0fdf4; padding: 10px 20px; border-radius: 12px; color: #065f46;">
+                    <div style="font-weight: 800;">20</div> Easy
+                </div>
+                <div style="background: #fff7ed; padding: 10px 20px; border-radius: 12px; color: #9a3412;">
+                    <div style="font-weight: 800;">30</div> Medium
+                </div>
+                <div style="background: #fef2f2; padding: 10px 20px; border-radius: 12px; color: #991b1b;">
+                    <div style="font-weight: 800;">50</div> Hard
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="startQuiz()">
+                Start Exam <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="screen" style="padding: 0;">
+        <div class="quiz-header">
+            <div>
+                <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Question</span>
+                <div style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);"><span id="q-curr">1</span><span style="color:#e5e7eb;">/</span><span id="q-total">100</span></div>
+            </div>
+            <div style="background: #fef2f2; color: var(--danger); padding: 6px 14px; border-radius: 10px; font-weight: 700; font-size: 0.9rem;">
+                <i class="fa-regular fa-clock"></i> <span id="timer">00:00</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+
+        <div class="quiz-body">
+            <span id="diff-badge" class="difficulty-tag diff-easy">Easy</span>
+            <div class="question-text" id="q-text">Loading...</div>
+            <div class="options-grid" id="options-container"></div>
+
+            <div class="feedback-box" id="feedback-box">
+                <h4 id="fb-title" style="margin-bottom: 10px;">Explanation</h4>
+                <p id="fb-text" style="line-height: 1.6; color: #374151; font-size: 0.95rem;"></p>
+                <div class="feedback-source">
+                    <i class="fa-solid fa-book-open"></i> <span id="fb-ref"></span>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button class="btn-primary" style="padding: 12px 30px; font-size: 1rem; margin-top:0;" onclick="nextQuestion()">
+                        Next <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+        <div class="start-content">
+            <h2 style="margin-bottom: 10px; font-size: 2rem;">Exam Completed!</h2>
+            <p id="res-msg" style="margin-bottom: 30px; color: var(--text-muted);"></p>
+            
+            <div class="result-circle" id="res-circle">
+                <div class="result-score" id="res-percent">0%</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                <div style="background: #f0fdf4; padding: 20px; border-radius: 16px; color: #065f46; border: 1px solid #d1fae5;">
+                    <div style="font-size: 2rem; font-weight: 800;" id="res-correct">0</div>
+                    <div style="font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Correct</div>
+                </div>
+                <div style="background: #fef2f2; padding: 20px; border-radius: 16px; color: #991b1b; border: 1px solid #fee2e2;">
+                    <div style="font-size: 2rem; font-weight: 800;" id="res-wrong">0</div>
+                    <div style="font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Incorrect</div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="location.reload()">
+                Restart Exam <i class="fa-solid fa-rotate-right"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- DATABASE: 100 Questions from PDF Materials ---
+    // 20 Easy, 30 Medium, 50 Hard.
+    const db = [
+        // --- EASY (20 Questions) ---
+        {
+            q: "According to the PMI definition, what is a project?",
+            options: ["A permanent business operation", "A temporary endeavor undertaken to create a unique product, service or result", "A set of routine tasks", "A strategic ongoing process"],
+            a: 1,
+            diff: "Easy",
+            ref: "Intro to PM, Slide 9",
+            exp: "A project is defined by PMI as a temporary endeavor undertaken to create a unique product, service, or result."
+        },
+        {
+            q: "What does the abbreviation WBS stand for in project planning?",
+            options: ["Work Breakdown Structure", "Weekly Business Schedule", "Work Balance Sheet", "Wide Band System"],
+            a: 0,
+            diff: "Easy",
+            ref: "Chapter 4, Slide 12",
+            exp: "WBS stands for Work Breakdown Structure, which is a deliverable-oriented hierarchical decomposition of project work."
+        },
+        {
+            q: "Which of the following is NOT one of the four general phases of the Project Life Cycle?",
+            options: ["Initiating", "Marketing", "Planning", "Closing"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 1, Slide 7",
+            exp: "The four phases are Initiating, Planning, Performing, and Closing. Marketing is not a PLC phase."
+        },
+        {
+            q: "What document is used to formally authorize a project?",
+            options: ["Project Schedule", "RFP", "Project Charter", "Budget Plan"],
+            a: 2,
+            diff: "Easy",
+            ref: "Chapter 2, Slide 15",
+            exp: "Once selected, a project is formally authorized using a document referred to as a project charter."
+        },
+        {
+            q: "In which organizational structure do project team members have 'no home' after the project ends?",
+            options: ["Functional", "Autonomous Project", "Matrix", "Balanced"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 13, Slide 8",
+            exp: "In an Autonomous Project structure, team members do not have a department to go back to ('no home') after project completion."
+        },
+        {
+            q: "What does RFP stand for?",
+            options: ["Request for Proposal", "Request for Payment", "Ready for Production", "Required Final Plan"],
+            a: 0,
+            diff: "Easy",
+            ref: "Chapter 2, Slide 19",
+            exp: "RFP stands for Request for Proposal, used to solicit proposals from contractors."
+        },
+        {
+            q: "Which element is part of the 'Triple Constraint' (PM Triangle)?",
+            options: ["Scope", "Marketing", "Sales", "HR"],
+            a: 0,
+            diff: "Easy",
+            ref: "Intro to PM, Slide 15",
+            exp: "The constraints are Time, Cost, and Scope (Quality is often central). Scope is the correct answer here."
+        },
+        {
+            q: "What is the very first phase of the Project Life Cycle?",
+            options: ["Planning", "Closing", "Initiating", "Performing"],
+            a: 2,
+            diff: "Easy",
+            ref: "Chapter 1, Slide 8",
+            exp: "The PLC starts with the Initiating phase, where projects are identified and authorized."
+        },
+        {
+            q: "Who is responsible for the project results in a Matrix structure?",
+            options: ["The customer", "The project manager", "The functional manager only", "The CEO only"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 13, Slide 13",
+            exp: "In a Matrix structure, the project manager is responsible for the project results."
+        },
+        {
+            q: "What is a 'Deliverable' in a WBS?",
+            options: ["The cost of the project", "The output of a work package", "The duration of a task", "The name of the manager"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 4, Slide 13",
+            exp: "A deliverable is defined as the output of a work package in the WBS."
+        },
+        {
+            q: "Which formula represents Total Slack?",
+            options: ["LF - ES", "LF - EF", "EF - ES", "LS + Duration"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 5, Slide 25 (Inferred logic)",
+            exp: "Total Slack is the difference between Late Finish (LF) and Early Finish (EF), or Late Start (LS) and Early Start (ES)."
+        },
+        {
+            q: "What is the primary purpose of a Project Charter?",
+            options: ["To design the product", "To fire employees", "To provide sponsor approval and commit funding", "To create a Gantt chart"],
+            a: 2,
+            diff: "Easy",
+            ref: "Chapter 2, Slide 15",
+            exp: "The charter provides sponsor approval and commits funding for the project."
+        },
+        {
+            q: "Which organization is a worldwide not-for-profit association for PM practitioners founded in 1969?",
+            options: ["IPMA", "PMI", "APM", "AIPM"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 1, Slide 27",
+            exp: "PMI (Project Management Institute) was founded in 1969 and is the worldwide association."
+        },
+        {
+            q: "What determines the duration of an activity?",
+            options: ["The color of the chart", "The availability and types of resources", "The project name", "The customer's age"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 5, Slide 4",
+            exp: "Factors influencing duration include availability of resources and types of resources."
+        },
+        {
+            q: "In a Network Diagram, what does a box typically represent?",
+            options: ["A resource", "An activity", "A delay", "A cost"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 5, Slide 19",
+            exp: "Activities are represented by a box in the PDM (Precedence Diagramming Method)."
+        },
+        {
+            q: "True or False: A project is a continuous, ongoing operation.",
+            options: ["True", "False"],
+            a: 1,
+            diff: "Easy",
+            ref: "Intro to PM, Slide 9",
+            exp: "False. A project is a *temporary* endeavor, distinct from ongoing operations."
+        },
+        {
+            q: "Which project management constraint refers to 'how much it will cost'?",
+            options: ["Scope", "Budget (Cost)", "Schedule (Time)", "Quality"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 1, Slide 9",
+            exp: "The Budget covers 'How much it will cost'."
+        },
+        {
+            q: "What is the goal of the 'Closing Phase'?",
+            options: ["To start the work", "To plan the budget", "To archive documents and conduct evaluations", "To hire staff"],
+            a: 2,
+            diff: "Easy",
+            ref: "Chapter 1, Slide 11",
+            exp: "Closing involves conducting evaluations, documenting lessons learned, and archiving documents."
+        },
+        {
+            q: "What is a 'Milestone'?",
+            options: ["A resource type", "A specific point in time or key event", "A type of budget", "A risk factor"],
+            a: 1,
+            diff: "Easy",
+            ref: "Chapter 2, Slide 15 (Project Charter elements)",
+            exp: "A milestone schedule tracks key events or points in time (implied from charter elements)."
+        },
+        {
+            q: "Which factor is NOT usually considered when estimating activity resources?",
+            options: ["People", "Materials", "Equipment", "Weather in another country"],
+            a: 3,
+            diff: "Easy",
+            ref: "Chapter 5, Slide 4",
+            exp: "Resources include People, Materials, Equipment, and Facilities. Weather is a risk factor, not a resource type."
+        },
+
+        // --- MEDIUM (30 Questions) ---
+        {
+            q: "In a Matrix Organization, who handles the administrative authority over the project team members?",
+            options: ["The Project Manager", "The Functional Manager", "The Customer", "The PMO Director"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 13, Slide 6/15",
+            exp: "Administratively, members still work for their respective functional managers in a matrix/functional setup."
+        },
+        {
+            q: "Which economic model calculates the rate at which project inflows and outflows are equal?",
+            options: ["Net Present Value (NPV)", "Internal Rate of Return (IRR)", "Payback Period", "Benefit Cost Ratio"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 2, Slide 10",
+            exp: "IRR is the rate at which project inflows ('revenues') and outflows ('costs') are equal."
+        },
+        {
+            q: "What is 'Scope Creep'?",
+            options: ["Formal changes to the project", "Informally making changes without appropriate approval", "Reducing the project scope", "Delaying the project start"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 4, Slide 7",
+            exp: "Scope creep refers to informally making changes to the project scope without appropriate approval."
+        },
+        {
+            q: "Which contract type carries the highest risk for the customer?",
+            options: ["Fixed Price", "Cost-Reimbursement", "Lump Sum", "Unit Price"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 3, Slide 31",
+            exp: "Cost-Reimbursement contracts are high risk for the customer because costs can overrun the proposed price."
+        },
+        {
+            q: "In the 'Performing Phase', what is a key action of the Project Manager?",
+            options: ["Develop the project charter", "Monitor and control progress", "Archive project documents", "Select the contractor"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 1, Slide 10",
+            exp: "During Performing, the PM monitors and controls progress and takes corrective action."
+        },
+        {
+            q: "What is a disadvantage of the Functional Organizational Structure?",
+            options: ["Duplication of resources", "Insularity (narrow-mindedness)", "No home for employees", "Lack of technical expertise"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 13, Slide 19",
+            exp: "Insularity, where components are only concerned about their own performance, is a disadvantage."
+        },
+        {
+            q: "Why should a contractor not wait until an RFP is announced to start developing a proposal?",
+            options: ["It is illegal", "Proposal development time is often very short", "The customer will get angry", "It costs more money"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 3, Slide 8",
+            exp: "Contractors should start early because proposal development times are often very short."
+        },
+        {
+            q: "What is the Critical Path?",
+            options: ["The path with the most activities", "The longest path in the network diagram", "The path with the most slack", "The shortest path in the network"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 5, Slide 28",
+            exp: "The critical path is the longest path in the overall network diagram."
+        },
+        {
+            q: "In a Strong Matrix, who has the most authority?",
+            options: ["Functional Manager", "Project Manager", "Both share equal power", "Project Coordinator"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 13, Slide 18",
+            exp: "In a Strong Matrix, the Project Manager has significant authority and power."
+        },
+        {
+            q: "What is 'Laddering' in project scheduling?",
+            options: ["Climbing a ladder to fix a light", "A set of repeating activities performed in a serial sequence with overlap", "Creating a WBS", "Calculating cost overruns"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 4, Slide 21",
+            exp: "Laddering involves a set of repeating activities performed in a serial sequence allowing concurrent work."
+        },
+        {
+            q: "Which PMO type provides a consultative role with low control?",
+            options: ["Directive PMO", "Controlling PMO", "Supportive PMO", "Executive PMO"],
+            a: 2,
+            diff: "Medium",
+            ref: "Chapter 13, Slide 22",
+            exp: "Supportive PMOs provide templates and best practices with a low degree of control."
+        },
+        {
+            q: "What is the benefit of a Cost-Benefit Analysis ratio of 1.5?",
+            options: ["Costs are higher than benefits", "Benefits are 1.5 times the cost", "The project will take 1.5 years", "The project is a failure"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 2, Slide 11",
+            exp: "A ratio of 1.5 means the benefits (revenue) are 1.5 times the cost of the initiative."
+        },
+        {
+            q: "In 'Pre-RFP Marketing', what is a key benefit for the contractor?",
+            options: ["It guarantees the contract", "It costs the customer money", "It helps the client identify needs and builds relationships", "It bypasses the legal system"],
+            a: 2,
+            diff: "Medium",
+            ref: "Chapter 3, Slide 7",
+            exp: "Pre-RFP marketing helps the client identify needs and positions the contractor better to win."
+        },
+        {
+            q: "Which section of a proposal attempts to convince the customer that the contractor understands the problem?",
+            options: ["Cost Section", "Management Section", "Technical Section", "Appendices"],
+            a: 2,
+            diff: "Medium",
+            ref: "Chapter 3, Slide 16",
+            exp: "The Technical Section's objective is to convince the customer that the contractor understands the problem."
+        },
+        {
+            q: "What does 'ES' stand for in scheduling?",
+            options: ["Estimated Schedule", "Earliest Start", "End Start", "Early Sequence"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 5, Slide 10",
+            exp: "ES stands for Earliest Start time."
+        },
+        {
+            q: "Why is a loop not acceptable in a network diagram?",
+            options: ["It looks ugly", "It creates a path that perpetually repeats itself", "It consumes too much paper", "It is only allowed in PERT"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 4, Slide 20",
+            exp: "A loop is illogical because it portrays a path of activities that continuously repeats itself."
+        },
+        {
+            q: "What is the main role of a Project Manager in a Functional structure?",
+            options: ["Complete authority", "Part-time, with minimal authority", "Directing the CEO", "Hiring all staff"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 13, Slide 6",
+            exp: "In a functional structure, the PM has minimal authority and usually serves part-time."
+        },
+        {
+            q: "In the context of 'Bid or No-Bid', what does 'Extension of capabilities' refer to?",
+            options: ["Extending the deadline", "Opportunity to extend and enhance capabilities via the project", "Buying new office space", "Extending the payment terms"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 3, Slide 10",
+            exp: "It refers to whether the proposed project provides the contractor an opportunity to extend capabilities."
+        },
+        {
+            q: "What happens if the Total Slack of a path is zero?",
+            options: ["The project is ahead of schedule", "The activities on the path cannot be delayed", "The project is over budget", "The resources are free"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 5, Slide 25",
+            exp: "If total slack is zero, activities cannot be delayed without delaying the project."
+        },
+        {
+            q: "Which phase of the PLC typically requires the highest level of effort?",
+            options: ["Initiating", "Planning", "Performing", "Closing"],
+            a: 2,
+            diff: "Medium",
+            ref: "Chapter 1, Slide 6 (Graph)",
+            exp: "The Performing phase typically has the highest curve on the Project Life Cycle Effort graph."
+        },
+        {
+            q: "What is a 'BAFO' in proposal evaluation?",
+            options: ["Bad And Final Offer", "Best And Final Offer", "Budget Authorization For Operations", "Before Any Final Order"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 3, Slide 27",
+            exp: "BAFO stands for Best and Final Offer, which a customer may request during evaluation."
+        },
+        {
+            q: "What implies that a project has 'Negative Slack'?",
+            options: ["It is ahead of schedule", "The project requires acceleration", "The budget is surplus", "The scope is too small"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 5, Slide 25",
+            exp: "Negative slack means the amount of time an activity must be accelerated to meet the deadline."
+        },
+        {
+            q: "What is 'Globalization' adding to project management?",
+            options: ["Simplicity", "A dimension of complexity", "Lower costs", "Fewer stakeholders"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 1, Slide 26",
+            exp: "Globalization adds a dimension of complexity and changes project dynamics."
+        },
+        {
+            q: "What is the '5 P's' principle in Project Planning?",
+            options: ["Project Plans Produce Perfect People", "Proper Planning Prevents Poor Performance", "People Prefer Projects Plus Payment", "Plan Projects Properly Per Person"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 1, Slide 13",
+            exp: "The 5 P's stand for 'Proper Planning Prevents Poor Performance'."
+        },
+        {
+            q: "In a Responsibility Assignment Matrix, what does 'P' usually stand for?",
+            options: ["Participant", "Primary responsibility", "Partial", "Pending"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 4, Slide 16",
+            exp: "P designates Primary responsibility for an individual."
+        },
+        {
+            q: "What is the main advantage of an Autonomous Project structure?",
+            options: ["Cost efficiency", "Control over resources and responsiveness to customers", "Technology transfer", "Career continuity"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 13, Slide 19",
+            exp: "Advantages include control over resources and responsiveness to customers."
+        },
+        {
+            q: "What is 'Global Project Management' competency relating to 'Time'?",
+            options: ["Understanding time zones only", "Awareness of cultural differences, holidays, and history", "Using a stopwatch", "Buying watches"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 1, Slide 26",
+            exp: "It requires awareness of cultures, geography, world history, and events."
+        },
+        {
+            q: "Which tool is automatically generated in software to show activities as bars?",
+            options: ["Pie Chart", "Gantt Chart", "Scatter Plot", "Histogram"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 5, Slide 32",
+            exp: "A Gantt chart allows planning and scheduling with activities as bars."
+        },
+        {
+            q: "What is the purpose of a 'Post Project Evaluation'?",
+            options: ["To fire the team", "To spend remaining budget", "To identify lessons learned for future projects", "To start the project"],
+            a: 2,
+            diff: "Medium",
+            ref: "Chapter 1, Slide 11",
+            exp: "It is conducted to identify and document lessons learned to improve future performance."
+        },
+        {
+            q: "Why is 'Trust' crucial in customer relationships?",
+            options: ["It is not important", "Customers prefer to work with people they know and trust", "It allows contractors to charge more", "It is required by law"],
+            a: 1,
+            diff: "Medium",
+            ref: "Chapter 3, Slide 4",
+            exp: "Customers and partners prefer to work with people they know and trust."
+        },
+
+        // --- HARD (50 Questions) ---
+        {
+            q: "If Task A has an EF of 10 and Task B (successor) has a Duration of 5, what is the EF of Task B?",
+            options: ["10", "15", "5", "20"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 10",
+            exp: "ES of B = 10. EF = ES + Duration = 10 + 5 = 15."
+        },
+        {
+            q: "What is the specific risk of a 'Directive PMO'?",
+            options: ["It has no control", "It acts only as a consultant", "It takes control by directly managing projects", "It provides no training"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 22",
+            exp: "Directive PMOs take control of projects by directly managing them; degree of control is high."
+        },
+        {
+            q: "In Net Present Value (NPV) calculation, if the interest rate increases, what happens to the PV of future money?",
+            options: ["It increases", "It decreases", "It stays the same", "It doubles"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 2, Slide 8 (Math Logic)",
+            exp: "As the discount rate (interest) increases, the Present Value decreases (money is worth less today)."
+        },
+        {
+            q: "Which WBS format is helpful for large projects where a diagram would become too large?",
+            options: ["Graphic Chart", "Indentured List", "Pie Chart", "Scatter Diagram"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 15",
+            exp: "The Indentured List format is helpful for large projects where a diagram implies too much space."
+        },
+        {
+            q: "What is the formula for calculating Latest Start (LS)?",
+            options: ["LF + Duration", "LF - Duration", "EF - Duration", "ES + Slack"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 24",
+            exp: "LS = LF – Estimated Duration."
+        },
+        {
+            q: "A benefit cost ratio of 2.7 means:",
+            options: ["Costs are 2.7 times the benefits", "Benefits are 2.7 times the costs", "Project will take 2.7 years", "Payback is in 2.7 months"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 2, Slide 11",
+            exp: "A ratio of 2.7 means revenue/benefits are 2.7 times the cost."
+        },
+        {
+            q: "In a 'Weak Matrix', the Project Manager's role is similar to a:",
+            options: ["Project Dictator", "Project Coordinator or Expediter", "Functional Manager", "CEO"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 18",
+            exp: "In a Weak Matrix, the PM is a Project Coordinator or leader with minimal authority."
+        },
+        {
+            q: "Why might a customer *not* select the lowest-priced proposal?",
+            options: ["They like spending money", "Low price might indicate lack of experience or understanding of scope", "High price always means quality", "The RFP requires the highest bid"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 25",
+            exp: "A low price might imply a questionable reputation, cheap materials, or misunderstanding the scope."
+        },
+        {
+            q: "What distinguishes 'Project Scope' from 'Project Charter'?",
+            options: ["Charter is more detailed", "Scope is less detailed", "Scope establishes common understanding and has more detail than Charter", "Charter is done at the end"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 7",
+            exp: "Project Scope includes items from the charter but adds 'More detail' and establishes common understanding."
+        },
+        {
+            q: "When updating a schedule, if the critical path changes, what must be done?",
+            options: ["Ignore the change", "Focus efforts on the new critical path activities", "Increase the budget immediately", "Cancel the project"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 37",
+            exp: "An important part of updating is determining if the critical path changed; management focus must shift there."
+        },
+        {
+            q: "What is a characteristic of 'Unsolicited Proposals'?",
+            options: ["They are requested by RFP", "They result from identified needs and eliminate solicitation", "They are always rejected", "They require a fee"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 7",
+            exp: "They are a result of identified needs and problem solving, eliminating the RFP/soliciting process."
+        },
+        {
+            q: "In the Cost Section of a proposal, what does 'Escalation' cover?",
+            options: ["Travel costs", "Printing manuals", "Cost increases in wages/materials over long-term projects", "Management reserve"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 19",
+            exp: "Escalation covers costs of wage/material increases over the length of long-term projects."
+        },
+        {
+            q: "What is the 'VUCA' world concept mentioned in planning?",
+            options: ["Very Unique Creative Arts", "Volatile, Uncertain, Complex, Ambiguous", "Virtual Unit Control Area", "Value Under Critical Analysis"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 1, Slide 14",
+            exp: "VUCA stands for Volatile / Uncertain / Complex / Ambiguous, affecting project uncertainty."
+        },
+        {
+            q: "If Task A (Finish-to-Start) ends on Day 5 and has a 'Wait Time' (Lag) of 2 days, when does Task B start?",
+            options: ["Day 6", "Day 7", "Day 8", "Day 5"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 17 (Concept of Wait Time)",
+            exp: "Wait time is added. Day 5 + 2 wait days means Task B starts effectively on Day 8 (or Day 7 end + 1)."
+        },
+        {
+            q: "Which PMO type requires compliance through various means and has moderate control?",
+            options: ["Supportive", "Controlling", "Directive", "Passive"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 22",
+            exp: "Controlling PMOs provide support and require compliance; control is moderate."
+        },
+        {
+            q: "What is the formula for 'Present Value' (PV)?",
+            options: ["FV / (1 + i)^n", "FV * (1 + i)^n", "FV + (i * n)", "FV - Cost"],
+            a: 0,
+            diff: "Hard",
+            ref: "Chapter 2, Slide 8",
+            exp: "PV = FV / (1 + i)^n."
+        },
+        {
+            q: "Why is 'Projectized Organization' considered cost-inefficient?",
+            options: ["Projects are never finished", "Duplication of resources/staff when not busy", "Project managers are paid too little", "Customers don't pay"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 9",
+            exp: "Inefficiency arises because each project pays dedicated salaries even when staff are not busy (no sharing)."
+        },
+        {
+            q: "What happens if a contractor omits the 'Management Section' from a proposal?",
+            options: ["It saves money", "The customer may doubt the contractor's ability to do the work", "It is required to be omitted", "The price goes down"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 17",
+            exp: "The Management Section convinces the customer the contractor *can do* the work; omitting it creates doubt."
+        },
+        {
+            q: "Which project constraint is most affected if the Critical Path is delayed?",
+            options: ["Cost only", "Time (Schedule)", "Quality only", "Scope"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 33",
+            exp: "Delaying the critical path delays the whole project, directly impacting the Time/Schedule constraint."
+        },
+        {
+            q: "What is 'Insularity' in the context of Org Structures?",
+            options: ["Working from home", "A disadvantage of Functional orgs where departments are narrow-minded", "A benefit of Matrix orgs", "Project insulation material"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 19",
+            exp: "Insularity is a disadvantage of Functional structures; inward-looking performance focus."
+        },
+        {
+            q: "If the 'Optimistic schedule' is 3 months and the 'Low Budget' reflects low experience, what is the risk?",
+            options: ["Low risk", "The project is guaranteed", "High risk of failure or overrun", "The customer will be happy"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 27 (Scorecard)",
+            exp: "Optimistic schedules combined with low budgets (low experience staff) indicate high risk."
+        },
+        {
+            q: "What defines a 'Simplified Project Proposal'?",
+            options: ["It has no price", "It is 4-8 pages focusing on content quality over quantity", "It is oral only", "It is for billion-dollar projects"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 23",
+            exp: "Simplified proposals range from 4 to 8 pages, focusing on clarity and conciseness."
+        },
+        {
+            q: "In a Matrix structure, what is crucial for the PM to manage due to dual reporting?",
+            options: ["The budget", "The balance of power", "The office layout", "The software"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 24",
+            exp: "Operating guidelines must assure proper 'balance of power' between PMs and Functional Managers."
+        },
+        {
+            q: "What is a 'Win Ratio'?",
+            options: ["Number of projects completed", "Percentage of proposals won out of total submitted", "Profit margin", "Bonus for the PM"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 34",
+            exp: "Win ratio is the number of proposals won divided by the number submitted."
+        },
+        {
+            q: "If a project has a Benefit Cost Ratio of 0.8, should it be selected?",
+            options: ["Yes, it's profitable", "No, costs exceed benefits", "Yes, if it's short", "No, unless it's a charity"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 2, Slide 11 (Inferred)",
+            exp: "A ratio < 1.0 means costs exceed benefits, so generally it should not be selected for profit."
+        },
+        {
+            q: "What is the primary output of the 'Sequencing Activities' process?",
+            options: ["Gantt Chart", "Network Diagram", "Budget", "Project Charter"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 20",
+            exp: "Sequencing activities involves creating a network diagram."
+        },
+        {
+            q: "Why is 'Scope' defined before 'Schedule'?",
+            options: ["It isn't", "You must know *what* needs to be done before estimating *how long* it takes", "Schedule is more important", "Cost comes first"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 7/12",
+            exp: "WBS (Scope) is created first to identify work items, which are then sequenced and timed."
+        },
+        {
+            q: "What is a 'Project Control Process' step?",
+            options: ["Identify the critical path", "Gather data on actual performance", "Write the proposal", "Hire the team"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 34",
+            exp: "Gathering data on actual performance is a key step in the control process."
+        },
+        {
+            q: "If Activity A has LS=10 and ES=5, what is the Total Slack?",
+            options: ["15", "5", "2", "50"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 25 (Logic)",
+            exp: "Slack = LS - ES. 10 - 5 = 5."
+        },
+        {
+            q: "Which PMO type acts primarily as a knowledge repository?",
+            options: ["Directive", "Supportive", "Controlling", "Managing"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 22",
+            exp: "Supportive PMOs supply templates, best practices, and training (consultative role)."
+        },
+        {
+            q: "In 'Cost-Reimbursement' contracts, why does the customer compare actuals to budget?",
+            options: ["To pay less", "To reforecast cost-at-completion due to high risk", "To sue the contractor", "To delay payment"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 31",
+            exp: "Since contractor costs can overrun, the customer monitors actuals to reforecast total costs."
+        },
+        {
+            q: "What does 'Progressively Elaborate' mean for a network diagram?",
+            options: ["Drawing it once", "Updating it as the project progresses and more info becomes clear", "Making it colorful", "Deleting finished tasks"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 22",
+            exp: "It means the diagram is updated/refined as the project moves forward and information clarifies."
+        },
+        {
+            q: "If a project is 'Projectized', who has complete authority?",
+            options: ["The Functional Manager", "The Project Manager", "The CEO", "The Team"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 9",
+            exp: "In a Projectized org, the full-time PM has complete project and administrative authority."
+        },
+        {
+            q: "What is 'Overhead' in a cost proposal?",
+            options: ["Profit", "Indirect costs (insurance, depreciation, accounting)", "Labor hours", "Materials"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 19",
+            exp: "Overhead covers indirect costs of doing business like insurance and utilities."
+        },
+        {
+            q: "Which is a 'Critical Success Factor' for Global Project Management?",
+            options: ["Speaking English only", "Understanding culture and customs to build trust", "Ignoring time zones", "Using US Currency"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 1, Slide 30",
+            exp: "Learning culture and customs demonstrates respect and helps build trust."
+        },
+        {
+            q: "What is the effect of 'Haste makes waste' in Quality Planning?",
+            options: ["Doing it fast is better", "Rushing leads to rework/redo, costing more time later", "Quality is irrelevant", "It saves budget"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 11",
+            exp: "Thinking there isn't time to do it right leads to redoing it later, which takes more time."
+        },
+        {
+            q: "Identify the incorrect statement about 'Project Charter':",
+            options: ["It authorizes the project", "It commits funding", "It is a standard format used by everyone", "It summarizes key conditions"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 2, Slide 15",
+            exp: "The Project Charter is 'not a standard format' (it varies by company)."
+        },
+        {
+            q: "What is the 'Pyramid of Cheops' height mentioned in history?",
+            options: ["100 m", "146.5 m", "200 m", "50 m"],
+            a: 1,
+            diff: "Hard",
+            ref: "Intro to PM, Slide 6",
+            exp: "The Pyramid of Cheops was 146.5 m in height."
+        },
+        {
+            q: "Which Knowledge Area involves 'Make or Buy' decisions?",
+            options: ["Scope", "Procurement", "Integration", "Cost"],
+            a: 1,
+            diff: "Hard",
+            ref: "Intro to PM, Slide 22 (Inferred from Procurement context)",
+            exp: "Procurement management involves acquiring goods/services (Proposal/Contracting)."
+        },
+        {
+            q: "What is 'Activity in the Box' also known as?",
+            options: ["PERT", "AOA", "PDM (Precedence Diagramming Method)", "Gantt"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 18/19 (Network Principles)",
+            exp: "PDM uses boxes to represent activities (Activity-on-Node)."
+        },
+        {
+            q: "Why is 'Feedback' important in the Closing Phase?",
+            options: ["To punish employees", "To improve performance on future projects", "To get a refund", "To write a book"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 1, Slide 30",
+            exp: "Feedback/evaluations help improve performance on future projects."
+        },
+        {
+            q: "If a project has 'High Risk' and 'Medium Chance of Success', should you bid?",
+            options: ["Always", "Never", "Depends on factors like mission, capabilities, and reputation", "Only if it is short"],
+            a: 2,
+            diff: "Hard",
+            ref: "Chapter 3, Slide 14/10",
+            exp: "It depends on a weighted analysis of competition, mission, capabilities, etc."
+        },
+        {
+            q: "Which allows for 'shortest possible time for completion' in scheduling?",
+            options: ["Serial sequencing", "Laddering", "Delaying start", "Removing resources"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 21",
+            exp: "Laddering allows for the shortest possible time for completion by overlapping tasks."
+        },
+        {
+            q: "What is the 'Great Wall of China' length mentioned?",
+            options: ["5,000 km", "8,850 km", "10,000 km", "2,000 km"],
+            a: 1,
+            diff: "Hard",
+            ref: "Intro to PM, Slide 7",
+            exp: "The Great Wall is listed as 8,850 km."
+        },
+        {
+            q: "In Project Control, if corrective actions are needed, what must be negotiated?",
+            options: ["Trade-off of scope, time, and cost", "The PM's salary", "The office location", "The company name"],
+            a: 0,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 40",
+            exp: "Corrective actions usually require a trade-off among scope, time, and cost."
+        },
+        {
+            q: "What does 'S' stand for in a RAM (Responsibility Assignment Matrix)?",
+            options: ["Start", "Support responsibility", "Supervisor", "Sign-off"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 16",
+            exp: "P = Primary, S = Support responsibility."
+        },
+        {
+            q: "Which represents 'Efficiency of performance' as a selection factor?",
+            options: ["Project Selection", "Organizational Structure Selection", "RFP Selection", "Team Selection"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 13, Slide 23",
+            exp: "Efficiency of performance is a factor in selecting an Organizational Structure."
+        },
+        {
+            q: "If a project is '138 days' but required '130 days', what is the status?",
+            options: ["Successful", "8 days delayed / Overdue", "Ahead of schedule", "On time"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 22",
+            exp: "It is 8 days beyond the required completion time."
+        },
+        {
+            q: "What is 'Positive Slack'?",
+            options: ["Amount of time an activity must be accelerated", "Maximum delay without jeopardizing on-time completion", "Budget surplus", "Good team morale"],
+            a: 1,
+            diff: "Hard",
+            ref: "Chapter 5, Slide 25",
+            exp: "Positive slack is the allowable delay without affecting the project end date."
+        },
+        {
+            q: "What is the 'Golden Rule' implied by 'Haste makes waste'?",
+            options: ["Do work right the first time", "Work fast, fix later", "Ignore quality for speed", "Scope doesn't matter"],
+            a: 0,
+            diff: "Hard",
+            ref: "Chapter 4, Slide 10/11",
+            exp: "Planning for quality means doing work right the first time rather than rework."
+        }
+    ];
+
+    // --- Variables ---
+    let currentQIndex = 0;
+    let score = 0;
+    let timer = 0;
+    let timerInterval;
+    const totalTime = 60 * 60; // 60 minutes for 100 questions
+
+    // --- Elements ---
+    const screens = {
+        start: document.getElementById('start-screen'),
+        quiz: document.getElementById('quiz-screen'),
+        result: document.getElementById('result-screen')
+    };
+
+    const ui = {
+        qCurr: document.getElementById('q-curr'),
+        qTotal: document.getElementById('q-total'),
+        timer: document.getElementById('timer'),
+        diffBadge: document.getElementById('diff-badge'),
+        qText: document.getElementById('q-text'),
+        options: document.getElementById('options-container'),
+        feedback: document.getElementById('feedback-box'),
+        fbText: document.getElementById('fb-text'),
+        fbRef: document.getElementById('fb-ref'),
+        progress: document.getElementById('progress-fill'),
+        resMsg: document.getElementById('res-msg'),
+        resPercent: document.getElementById('res-percent'),
+        resCorrect: document.getElementById('res-correct'),
+        resWrong: document.getElementById('res-wrong'),
+        emoji: document.getElementById('emoji-feedback')
+    };
+
+    // --- Functions ---
+
+    function startQuiz() {
+        currentQIndex = 0;
+        score = 0;
+        timer = totalTime;
+        
+        // Switch Screen
+        screens.start.classList.remove('active');
+        setTimeout(() => {
+            screens.start.style.display = 'none';
+            screens.quiz.style.display = 'flex';
+            setTimeout(() => screens.quiz.classList.add('active'), 50);
+        }, 400);
+
+        // Start Timer
+        startTimer();
+        loadQuestion();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timer--;
+            let m = Math.floor(timer / 60);
+            let s = timer % 60;
+            ui.timer.textContent = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            
+            if (timer <= 0) endQuiz();
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        const q = db[currentQIndex];
+        
+        // Update UI
+        ui.qCurr.textContent = currentQIndex + 1;
+        ui.qTotal.textContent = db.length;
+        ui.qText.textContent = q.q;
+        
+        // Difficulty Badge
+        ui.diffBadge.className = `difficulty-tag diff-${q.diff.toLowerCase()}`;
+        ui.diffBadge.textContent = q.diff;
+
+        // Progress Bar
+        const prog = ((currentQIndex) / db.length) * 100;
+        ui.progress.style.width = `${prog}%`;
+
+        // Reset Feedback
+        ui.feedback.style.display = 'none';
+        
+        // Generate Options (Shuffle visual, keep index logic)
+        ui.options.innerHTML = '';
+        
+        // Create array of indices [0, 1, 2, 3] and shuffle
+        let indices = q.options.map((_, i) => i);
+        shuffleArray(indices);
+
+        indices.forEach(i => {
+            const div = document.createElement('div');
+            div.className = 'option-card';
+            div.innerHTML = `<span>${q.options[i]}</span> <i class="fa-regular fa-circle" style="color:#d1d5db"></i>`;
+            div.onclick = () => checkAnswer(i, div, q.a);
+            ui.options.appendChild(div);
+        });
+    }
+
+    function checkAnswer(selectedIdx, el, correctIdx) {
+        // Disable all options
+        const allOpts = document.querySelectorAll('.option-card');
+        allOpts.forEach(o => o.classList.add('disabled'));
+
+        const isCorrect = selectedIdx === correctIdx;
+        
+        if (isCorrect) {
+            score++;
+            el.classList.add('correct');
+            el.querySelector('i').className = 'fa-solid fa-circle-check';
+            showEmoji('😍'); // Happy
+        } else {
+            el.classList.add('wrong');
+            el.querySelector('i').className = 'fa-solid fa-circle-xmark';
+            showEmoji('😢'); // Sad
+            
+            // Highlight correct one
+            // We need to find the element that corresponds to the correct index based on text or tracking
+            // Since we shuffled indices, we find the one where the original index matches correctIdx
+            // But simpler: We passed original index 'i' to the function.
+            // Loop through UI elements to find the one with the correct index closure? 
+            // Easier: just loop and match text.
+            const correctText = db[currentQIndex].options[correctIdx];
+            allOpts.forEach(opt => {
+                if (opt.textContent.trim() === correctText) {
+                    opt.classList.add('correct');
+                    opt.querySelector('i').className = 'fa-solid fa-circle-check';
+                }
+            });
+        }
+
+        // Show Explanation
+        ui.fbText.textContent = db[currentQIndex].exp;
+        ui.fbRef.textContent = "Source: " + db[currentQIndex].ref;
+        ui.feedback.style.display = 'block';
+        
+        // Scroll to feedback if needed on mobile
+        setTimeout(() => {
+            ui.feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+
+    function nextQuestion() {
+        if (currentQIndex < db.length - 1) {
+            currentQIndex++;
+            loadQuestion();
+        } else {
+            endQuiz();
+        }
+    }
+
+    function endQuiz() {
+        clearInterval(timerInterval);
+        
+        screens.quiz.classList.remove('active');
+        setTimeout(() => {
+            screens.quiz.style.display = 'none';
+            screens.result.style.display = 'flex';
+            setTimeout(() => screens.result.classList.add('active'), 50);
+        }, 400);
+
+        const percentage = Math.round((score / db.length) * 100);
+        ui.resPercent.textContent = percentage + "%";
+        ui.resCorrect.textContent = score;
+        ui.resWrong.textContent = db.length - score;
+
+        if (percentage >= 80) ui.resMsg.textContent = "Excellent! You are a PMO Master.";
+        else if (percentage >= 60) ui.resMsg.textContent = "Good job! You passed.";
+        else ui.resMsg.textContent = "Keep studying the PDFs and try again.";
+    }
+
+    function showEmoji(char) {
+        ui.emoji.textContent = char;
+        ui.emoji.classList.remove('hide');
+        ui.emoji.classList.add('show');
+        
+        setTimeout(() => {
+            ui.emoji.classList.remove('show');
+            ui.emoji.classList.add('hide');
+        }, 800);
+    }
+
+    // Fisher-Yates Shuffle
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+</script>
+
+</body>
+</html>
